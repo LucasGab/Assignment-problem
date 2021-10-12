@@ -1,7 +1,7 @@
 from pulp import *
+from sys import argv, stderr
 import time
 import random
-
 
 # Getting CBC solver
 cbcSolver = getSolver('PULP_CBC_CMD',msg=False)
@@ -21,9 +21,23 @@ gurobiSolver = getSolver('GUROBI')
 # The number n of agents and tasks
 n = 5
 
+# Checking argument usage
+if len(argv) < 2:
+  if len(argv) == 0:
+    argv.append('script_name')
+  print('Usage: python3 ' + argv[0] + ' [solver]', file=stderr)
+  exit(1)
+
 # Setting the resolve solver
-resolveSolver = cbcSolver
-solverName = 'CBC'
+if argv[1] == 'cbc':
+  resolveSolver = cbcSolver
+  solverName = 'cbc'
+elif argv[1] == 'gurobi':
+  resolveSolver = gurobiSolver
+  solverName= 'Gurobi'
+else:
+  print('Invalid solver. Available solvers: cbc, gurobi')
+  exit(2)
 
 agentsSatisfaction = []
 for i in range(n):
@@ -95,6 +109,6 @@ for agent in agentsRange:
       print(f"Agent: {agent} executed the task: {task}")
       total_sum += satisfactionValue(agent,task)
 
-print(f"The maximization returned a summation of: {total_sum}")
+print(f"\nThe maximization returned a summation of: {total_sum}")
 end = time.time()
 print(f"Time Elapsed: {end-start}")
