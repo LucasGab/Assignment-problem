@@ -26,6 +26,7 @@ if len(argv) < 2:
   if len(argv) == 0:
     argv.append('script_name')
   print('Usage: python3 ' + argv[0] + ' [solver]', file=stderr)
+  print('Available solvers: cbc, gurobi', file=stderr)
   exit(1)
 
 # Setting the resolve solver
@@ -36,7 +37,7 @@ elif argv[1] == 'gurobi':
   resolveSolver = gurobiSolver
   solverName= 'Gurobi'
 else:
-  print('Invalid solver. Available solvers: cbc, gurobi')
+  print('Invalid solver. Available solvers: cbc, gurobi', file=stderr)
   exit(2)
 
 agentsSatisfaction = []
