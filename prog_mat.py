@@ -26,6 +26,14 @@ resolveSolver = cbcSolver
 solverName = 'CBC'
 
 agentsSatisfaction = []
+# Read a file
+#file = open('filename.txt')
+#for line in file:
+#    line = line.split()
+#    Just use this line if it's b type instance (real numbers), if it is a type instance (integer number) comment this line below
+#    numbers_float = [float(x) for x in line]
+#    agentsSatisfaction.append(numbers_float)
+
 for i in range(n):
   randomList = []
   for j in range(n):
