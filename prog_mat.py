@@ -31,7 +31,8 @@ agentsSatisfaction = []
 #for line in file:
 #    line = line.split()
 #    If it's a type instance (integer numbers)
-#    agentsSatisfaction.append(line)
+#    numbers_integer = [int(x) for x in line]
+#    agentsSatisfaction.append(numbers_integer)
 #    If it's b type instance (real numbers)
 #    numbers_float = [float(x) for x in line]
 #    agentsSatisfaction.append(numbers_float)
