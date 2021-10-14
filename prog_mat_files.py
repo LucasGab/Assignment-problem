@@ -1,11 +1,13 @@
 from pulp import *
 from openpyxl import Workbook
+from munkres import *
 import time
 import random
 import os
+import copy
 
-#Type a instaces (integer numbers)
-folder = 'insta'
+#Type a instaces to resolve
+folder = 'instb'
 os.chdir(f'{folder}/')
 excelFile = Workbook()
 sheet1 = excelFile.active
@@ -29,36 +31,36 @@ cbcSolver = getSolver('PULP_CBC_CMD',msg=False)
 gurobiSolver = getSolver('GUROBI',msg=False)
 
 # The number n of agents and tasks
-#n = 5
+n = 0
 
 # Setting the resolve solver
 resolveSolver = cbcSolver
 solverName = 'CBC'
 
-for filename in os.listdir(os.getcwd()):
-  with open(os.path.join(os.getcwd(), filename), 'r') as f:
-    agentsSatisfaction = []
-    # The number n of agents and tasks
-    num = filename.split('.')
-    num = num[0].split('_')
-    n = int(num.pop())
-    print(f"Reading file: {filename}")
-    print(f"Total inputs: {n}")
+# The agents satisfaction for each task
+agentsSatisfaction = []
 
-    for line in f:
-        line = line.split()
-        #    If it's b type instance (real numbers)
-        satisfaction_numbers = [float(x) for x in line]
-        agentsSatisfaction.append(satisfaction_numbers)
+# Returns the satisfactionValue of an agent execunting a task
+def satisfactionValue(agent,task):
+    global agentsSatisfaction
+    return agentsSatisfaction[agent][task]
 
-    
-    # Returns the satisfactionValue of an agent execunting a task
-    def satisfactionValue(agent,task):
-        return agentsSatisfaction[agent][task]
-
+# It uses pulp library, to solve with CBC and GUROBI
+def resolvePulp(filename):
+    global solverName
+    global resolveSolver
+    global cbcSolver
+    global gurobiSolver
+    global agentsSatisfaction
+    global n
+    global sheet1
     # The optimization function (Maximize)
-    funcOptimization = LpMaximize
+    if (resolveSolver == cbcSolver):
+        solverName = 'CBC'
+    elif (resolveSolver == gurobiSolver):
+        solverName = 'GUROBI'
 
+    funcOptimization = LpMaximize
     # Defines the problem to resolve
     problem = LpProblem("O_problema_de_designacao", funcOptimization)
 
@@ -94,10 +96,8 @@ for filename in os.listdir(os.getcwd()):
     for task in tasksRange:
         problem += (lpSum([agentsExectution[agent][task] for agent in agentsRange]) == 1, f"Task_Limit_{task}")
 
-
     print(f"\nSolver: {solverName}:\n")
     start = time.time()
-
     # Solve the problem using CBC
     problem.solve(resolveSolver)
 
@@ -115,4 +115,61 @@ for filename in os.listdir(os.getcwd()):
     print(f"Time Elapsed: {end-start}")
     sheet1.append((str(filename),str(n),str(end-start),str(total_sum)))
 
-excelFile.save(f"../{folder}_results.xlsx")
+
+# Uses monkres to resolve with 
+def resolveMonkres(filename):
+    global solverName
+    global agentsSatisfaction
+    global n
+    global sheet1
+    solverName = 'HUNGARIAN'
+    # Munkres calculates the minimization, so to calculates 
+    # de maximization, needs subtract the values from a larger number
+    agentsSatisfactionCopy = make_cost_matrix(agentsSatisfaction)
+    # for line in agentsSatisfaction:
+    #     lineCopy = []
+    #     for value in line:
+    #         lineCopy.append(sys.maxsize - value)
+    #     agentsSatisfactionCopy.append(lineCopy)
+    
+    problem = Munkres()
+    print(f"\nSolver: {solverName}:\n")
+    start = time.time()
+    # Solve the problem using Hungarian
+    result = problem.compute(agentsSatisfactionCopy)
+
+    total_sum = 0
+
+    # Calculates the total sum
+    for agent,task in result:
+        print(f"Agent: {agent} executed the task: {task}")
+        total_sum += satisfactionValue(agent,task)
+                
+    print(f"The maximization returned a summation of: {total_sum}")
+    end = time.time()
+    print(f"Time Elapsed: {end-start}")
+    sheet1.append((str(filename),str(n),str(end-start),str(total_sum)))
+    
+
+for filename in os.listdir(os.getcwd()):
+  with open(os.path.join(os.getcwd(), filename), 'r') as f:
+    agentsSatisfaction = []
+    # The number n of agents and tasks
+    num = filename.split('.')
+    num = num[0].split('_')
+    n = int(num.pop())
+    print(f"Reading file: {filename}")
+    print(f"Total inputs: {n}")
+
+    for line in f:
+        line = line.split()
+        #    If it's b type instance (real numbers)
+        satisfaction_numbers = [float(x) for x in line]
+        agentsSatisfaction.append(satisfaction_numbers)
+    
+    # Uncomment this line, to use CBC or GUROBI
+    # resolvePulp(filename)
+    resolveMonkres(filename)
+    
+
+excelFile.save(f"../{folder}_{solverName}_results.xlsx")
