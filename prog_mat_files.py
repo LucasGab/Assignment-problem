@@ -103,7 +103,7 @@ for filename in os.listdir(os.getcwd()):
 
     total_sum = 0
 
-    # Calculates the filenametasksRange:
+    # Calculates the total sum
     for agent in agentsRange:
         for task in tasksRange:
             if agentsExectution[agent][task].value() == 1:
