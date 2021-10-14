@@ -101,7 +101,7 @@ for filename in os.listdir(os.getcwd()):
         for task in tasksRange:
             if agentsExectution[agent][task].value() == 1:
                 print(f"Agent: {agent} executed the task: {task}")
-            total_sum += satisfactionValue(agent,task)
+                total_sum += satisfactionValue(agent,task)
 
     print(f"The maximization returned a summation of: {total_sum}")
     end = time.time()
