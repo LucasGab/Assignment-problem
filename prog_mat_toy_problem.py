@@ -2,6 +2,7 @@ from pulp import *
 import time
 import random
 
+# CODE USED TO DO THE TOY PROBLEM
 
 # Getting CBC solver
 cbcSolver = getSolver('PULP_CBC_CMD',msg=False)
@@ -26,16 +27,6 @@ resolveSolver = cbcSolver
 solverName = 'CBC'
 
 agentsSatisfaction = []
-# Read a file
-#file = open('filename.txt')
-#for line in file:
-#    line = line.split()
-#    If it's a type instance (integer numbers)
-#    numbers_integer = [int(x) for x in line]
-#    agentsSatisfaction.append(numbers_integer)
-#    If it's b type instance (real numbers)
-#    numbers_float = [float(x) for x in line]
-#    agentsSatisfaction.append(numbers_float)
 
 for i in range(n):
   randomList = []
